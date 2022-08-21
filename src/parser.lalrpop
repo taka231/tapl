@@ -1,0 +1,38 @@
+use std::str::FromStr;
+use crate::ast::AST;
+
+#[LALR]
+grammar;
+
+pub Top: AST = Expr ;
+
+Expr: AST = {
+    Abs,
+    Factor,
+};
+
+Factor: AST = {
+    App,
+    Term,
+}
+
+Term: AST = {
+    Var,
+    "(" <Expr> ")",
+}
+
+Abs: AST = {
+    "\\" <s:String> "." <expr:Expr> => AST::LmAbs(s, Box::new(expr)),
+};
+
+App: AST = {
+    <e1:Factor> <e2:Term> => AST::LmApp(Box::new(e1), Box::new(e2)),
+}
+
+Var: AST = {
+    String => AST::Var(<>),
+};
+
+String: String = {
+    r"[a-z]+" => <>.to_string(),
+};
