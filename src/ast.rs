@@ -173,6 +173,7 @@ impl Term {
                     t => Term::TmApp(fi.clone(), Box::new(t), Box::new(v2)),
                 }
             }
+            Term::TmAbs(i, var, e) => Term::TmAbs(i.clone(), var.to_owned(), Box::new(e.eval(ctx))),
             t => t.clone(),
         }
     }
