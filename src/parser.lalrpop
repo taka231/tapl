@@ -23,6 +23,7 @@ Term: AST = {
 
 Abs: AST = {
     "\\" <s:String> "." <expr:Expr> => AST::LmAbs(s, Box::new(expr)),
+    "λ" <s:String> "." <expr:Expr> => AST::LmAbs(s, Box::new(expr)),
 };
 
 App: AST = {

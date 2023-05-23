@@ -17,20 +17,30 @@ pub enum Info {
     Info,
 }
 
-pub type Context = Vec<String>;
+#[derive(Debug, Clone, Eq, PartialEq, Copy)]
+pub enum Mode {
+    EvalInnerLambda,
+    NotEvalInnerLambda,
+}
+
+#[derive(Debug, Clone)]
+pub struct Context {
+    pub var: Vec<String>,
+    pub mode: Mode,
+}
 
 impl AST {
     fn into_term_helper(&self, ctx: &Context, nest: usize) -> Term {
         match self {
-            AST::Var(string) => match ctx.iter().rev().position(|r| r == string) {
-                Some(index) => Term::TmVar(Info::Info, index, ctx.len()),
+            AST::Var(string) => match ctx.var.iter().rev().position(|r| r == string) {
+                Some(index) => Term::TmVar(Info::Info, index, ctx.var.len()),
                 None => {
                     panic!("unexpected var")
                 }
             },
             AST::LmAbs(string, ast) => {
                 let mut ctx_copy = ctx.clone();
-                ctx_copy.push(string.clone());
+                ctx_copy.var.push(string.clone());
                 Term::TmAbs(
                     Info::Info,
                     string.clone(),
@@ -45,15 +55,18 @@ impl AST {
         }
     }
 
-    pub fn into_term(&self) -> Term {
+    pub fn into_term(&self, mode: Mode) -> Term {
         self.into_term_helper(
-            &vec![
-                "x".to_string(),
-                "y".to_string(),
-                "z".to_string(),
-                "a".to_string(),
-                "b".to_string(),
-            ],
+            &Context {
+                var: vec![
+                    "x".to_string(),
+                    "y".to_string(),
+                    "z".to_string(),
+                    "a".to_string(),
+                    "b".to_string(),
+                ],
+                mode: mode,
+            },
             0,
         )
     }
@@ -76,8 +89,8 @@ impl Term {
                 print!(")");
             }
             Term::TmVar(_, x, n) => {
-                if ctx.len() == *n {
-                    let ctx_reverse: Vec<&String> = ctx.iter().rev().collect();
+                if ctx.var.len() == *n {
+                    let ctx_reverse: Vec<&String> = ctx.var.iter().rev().collect();
                     print!("{}", ctx_reverse[*x]);
                 } else {
                     print!("[bad index]");
@@ -89,11 +102,11 @@ impl Term {
     fn pickfreshname(ctx: &Context, x: String) -> (Context, String) {
         let mut x_mut = x;
         loop {
-            if ctx.contains(&x_mut) {
+            if ctx.var.contains(&x_mut) {
                 x_mut = x_mut + "'";
             } else {
                 let mut new_ctx = ctx.clone();
-                new_ctx.push(x_mut.clone());
+                new_ctx.var.push(x_mut.clone());
                 return (new_ctx, x_mut);
             }
         }
@@ -173,7 +186,13 @@ impl Term {
                     t => Term::TmApp(fi.clone(), Box::new(t), Box::new(v2)),
                 }
             }
-            Term::TmAbs(i, var, e) => Term::TmAbs(i.clone(), var.to_owned(), Box::new(e.eval(ctx))),
+            ast @ Term::TmAbs(i, var, e) => {
+                if ctx.mode == Mode::EvalInnerLambda {
+                    Term::TmAbs(i.clone(), var.to_owned(), Box::new(e.eval(ctx)))
+                } else {
+                    ast.clone()
+                }
+            }
             t => t.clone(),
         }
     }
