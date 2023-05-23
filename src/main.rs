@@ -34,23 +34,24 @@ fn repl() {
             continue;
         }
 
-        parser
-            .parse(&input)
-            .unwrap()
-            .into_term()
-            .eval(&vec![
-                "x".to_string(),
-                "y".to_string(),
-                "z".to_string(),
-                "a".to_string(),
-                "b".to_string(),
-            ])
-            .printtm(&vec![
-                "x".to_string(),
-                "y".to_string(),
-                "z".to_string(),
-                "a".to_string(),
-                "b".to_string(),
-            ])
+        match parser.parse(&input) {
+            Ok(ast) => ast
+                .into_term()
+                .eval(&vec![
+                    "x".to_string(),
+                    "y".to_string(),
+                    "z".to_string(),
+                    "a".to_string(),
+                    "b".to_string(),
+                ])
+                .printtm(&vec![
+                    "x".to_string(),
+                    "y".to_string(),
+                    "z".to_string(),
+                    "a".to_string(),
+                    "b".to_string(),
+                ]),
+            Err(e) => println!("{}", e),
+        }
     }
 }
