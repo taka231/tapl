@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum AST {
     Var(String),
     LmAbs(String, Box<AST>),

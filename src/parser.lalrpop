@@ -35,5 +35,5 @@ Var: AST = {
 };
 
 String: String = {
-    r"[a-z]+" => <>.to_string(),
+    r"[[:alnum:]]+" => <>.to_string(),
 };
