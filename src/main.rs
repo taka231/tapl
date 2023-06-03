@@ -55,7 +55,7 @@ fn repl() {
                 .join(" ");
             match parser.parse(&ast_str) {
                 Ok(ast) => {
-                    var_table.insert(var.to_owned(), ast);
+                    var_table.insert(var.to_owned(), replace_ast(ast, &var_table));
                 }
                 Err(e) => print!("{}", e),
             }
