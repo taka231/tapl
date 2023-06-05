@@ -48,7 +48,13 @@ fn repl() {
         } else if input.starts_with(":let") {
             let mut split_input = input.split(" ");
             split_input.next();
-            let var = split_input.next().unwrap();
+            let var = match split_input.next() {
+                Some(var) => var,
+                None => {
+                    println!("var name was expected");
+                    continue;
+                }
+            };
             let ast_str: String = split_input
                 .map(|x| x.to_owned())
                 .collect::<Vec<String>>()
@@ -72,6 +78,7 @@ fn repl() {
                         "z".to_string(),
                         "a".to_string(),
                         "b".to_string(),
+                        "unexpected_var".to_owned(),
                     ],
                     mode: mode.clone(),
                 })
@@ -82,6 +89,7 @@ fn repl() {
                         "z".to_string(),
                         "a".to_string(),
                         "b".to_string(),
+                        "unexpected_var".to_owned(),
                     ],
                     mode: mode,
                 }),

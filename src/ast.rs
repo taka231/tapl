@@ -35,7 +35,8 @@ impl AST {
             AST::Var(string) => match ctx.var.iter().rev().position(|r| r == string) {
                 Some(index) => Term::TmVar(Info::Info, index, ctx.var.len()),
                 None => {
-                    panic!("unexpected var")
+                    println!("unexpected var was found!");
+                    Term::TmVar(Info::Info, ctx.var.len() - 6, ctx.var.len())
                 }
             },
             AST::LmAbs(string, ast) => {
@@ -64,6 +65,7 @@ impl AST {
                     "z".to_string(),
                     "a".to_string(),
                     "b".to_string(),
+                    "unexpected_var".to_owned(),
                 ],
                 mode: mode,
             },
