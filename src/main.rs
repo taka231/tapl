@@ -73,23 +73,23 @@ fn repl() {
                 .into_term(mode.clone())
                 .eval(&Context {
                     var: vec![
+                        "unexpected_var".to_owned(),
                         "x".to_string(),
                         "y".to_string(),
                         "z".to_string(),
                         "a".to_string(),
                         "b".to_string(),
-                        "unexpected_var".to_owned(),
                     ],
                     mode: mode.clone(),
                 })
                 .printtm(&Context {
                     var: vec![
+                        "unexpected_var".to_owned(),
                         "x".to_string(),
                         "y".to_string(),
                         "z".to_string(),
                         "a".to_string(),
                         "b".to_string(),
-                        "unexpected_var".to_owned(),
                     ],
                     mode: mode,
                 }),

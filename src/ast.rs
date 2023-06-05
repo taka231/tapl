@@ -36,7 +36,7 @@ impl AST {
                 Some(index) => Term::TmVar(Info::Info, index, ctx.var.len()),
                 None => {
                     println!("unexpected var was found!");
-                    Term::TmVar(Info::Info, ctx.var.len() - 6, ctx.var.len())
+                    Term::TmVar(Info::Info, ctx.var.len() - 1, ctx.var.len())
                 }
             },
             AST::LmAbs(string, ast) => {
@@ -60,12 +60,12 @@ impl AST {
         self.into_term_helper(
             &Context {
                 var: vec![
+                    "unexpected_var".to_owned(),
                     "x".to_string(),
                     "y".to_string(),
                     "z".to_string(),
                     "a".to_string(),
                     "b".to_string(),
-                    "unexpected_var".to_owned(),
                 ],
                 mode: mode,
             },
