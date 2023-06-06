@@ -1,6 +1,9 @@
 #[macro_use]
 extern crate lalrpop_util;
 mod ast;
+use std::env;
+use std::fs::File;
+use std::io::prelude::*;
 use std::{
     collections::HashMap,
     io::{self, Write},
@@ -19,13 +22,47 @@ macro_rules! print_flush {
 }
 
 fn main() {
-    repl()
+    let args: Vec<String> = env::args().collect();
+    repl(args.get(1).map(|x| x.to_owned()));
 }
 
-fn repl() {
+fn repl(arg: Option<String>) {
     let parser = parser::TopParser::new();
     let mut mode = ast::Mode::EvalInnerLambda;
     let mut var_table: HashMap<String, ast::AST> = HashMap::new();
+    match arg {
+        Some(arg) => {
+            // ファイルが見つかりませんでした
+            let mut f = File::open(arg).expect("file not found");
+
+            let mut contents = String::new();
+            f.read_to_string(&mut contents)
+                // ファイルの読み込み中に問題がありました
+                .expect("something went wrong reading the file");
+            let contents = contents.split("\n");
+            for content in contents {
+                let mut split_content = content.split(" ");
+                let var = match split_content.next() {
+                    Some(var) => var,
+                    None => {
+                        println!("var name was expected");
+                        continue;
+                    }
+                };
+                let ast_str: String = split_content
+                    .map(|x| x.to_owned())
+                    .collect::<Vec<String>>()
+                    .join(" ");
+                match parser.parse(&ast_str) {
+                    Ok(ast) => {
+                        var_table.insert(var.to_owned(), replace_ast(ast, &var_table));
+                    }
+                    Err(e) => print!("{}", e),
+                }
+            }
+        }
+        None => (),
+    }
     loop {
         println!();
         print_flush!("untyped?> ");
