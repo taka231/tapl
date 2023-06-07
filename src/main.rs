@@ -29,6 +29,7 @@ fn main() {
 fn repl(arg: Option<String>) {
     let parser = parser::TopParser::new();
     let mut mode = ast::Mode::EvalInnerLambda;
+    let mut result: Option<ast::Term> = None;
     let mut var_table: HashMap<String, ast::AST> = HashMap::new();
     match arg {
         Some(arg) => {
@@ -103,12 +104,9 @@ fn repl(arg: Option<String>) {
                 Err(e) => print!("{}", e),
             }
             continue;
-        }
-
-        match parser.parse(&input).map(|ast| replace_ast(ast, &var_table)) {
-            Ok(ast) => ast
-                .into_term(mode.clone())
-                .eval(&Context {
+        } else if input.starts_with(":result") {
+            result.clone().map(|term| {
+                term.eval(&Context {
                     var: vec![
                         "unexpected_var".to_owned(),
                         "x".to_string(),
@@ -129,7 +127,37 @@ fn repl(arg: Option<String>) {
                         "b".to_string(),
                     ],
                     mode: mode,
-                }),
+                })
+            });
+            continue;
+        }
+
+        match parser.parse(&input).map(|ast| replace_ast(ast, &var_table)) {
+            Ok(ast) => {
+                let term = ast.into_term(mode.clone()).eval(&Context {
+                    var: vec![
+                        "unexpected_var".to_owned(),
+                        "x".to_string(),
+                        "y".to_string(),
+                        "z".to_string(),
+                        "a".to_string(),
+                        "b".to_string(),
+                    ],
+                    mode: mode.clone(),
+                });
+                result = Some(term.clone());
+                term.printtm(&Context {
+                    var: vec![
+                        "unexpected_var".to_owned(),
+                        "x".to_string(),
+                        "y".to_string(),
+                        "z".to_string(),
+                        "a".to_string(),
+                        "b".to_string(),
+                    ],
+                    mode: mode,
+                })
+            }
             Err(e) => println!("{}", e),
         }
     }

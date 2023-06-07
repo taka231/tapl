@@ -1,1 +1,14 @@
 T \t. \f. t
+F \t. \f. f
+0 \s. \z. z
+1 \s. \z. s z
+2 \s. \z. s (s z)
+3 \s. \z. s (s (s z))
+Succ \n. \s. \z. s (n s z)
+Plus \m. \n. \s. \z. m s (n s z)
+Mult \m. \n. n (Plus m) 0
+Eqzero \n. n (\b. F) T
+Pred \n. \s. \z. n (\m. \s1. s1 (m s)) (\s1. z) (\x. x)
+Y \f. (\x. (\m. f (x x) m)) (\x. (\m. f (x x) m))
+Factgen \f. \n. (Eqzero n) 1 (\hoge. Mult n (f (Pred n)) hoge)
+Fact Y Factgen
